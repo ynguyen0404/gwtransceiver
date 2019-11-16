@@ -26,7 +26,7 @@ cMqttUtils::cMqttUtils(QObject *parent) : QObject(parent)
     m_client->setPassword(m_connectionInfo.getPassword());
     m_client->setWillQoS(m_connectionInfo.getQoS());
     m_client->setProtocolVersion(QMqttClient::MQTT_3_1_1);
-    m_client->setKeepAlive(7200);
+    m_client->setKeepAlive(40);
     connect(m_client, &QMqttClient::messageReceived, this, &cMqttUtils::on_ReceivedMessage);
     connect(m_client, &QMqttClient::stateChanged, this, &cMqttUtils::on_ConnectionStateChange);
     connect(m_client, &QMqttClient::connected, this, &cMqttUtils::on_ConnectionConnected);
