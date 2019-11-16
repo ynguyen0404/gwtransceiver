@@ -1,0 +1,12 @@
+[Unit]
+Description=IOT Gateway Transceiver Service
+After=network.target
+Wants=network.target
+
+[Service]
+Type=simple
+ExecStart=/opt/gwtransceive/bin/gwtransceive
+
+[Install]
+WantedBy=multi-user.target
+Alias=iotgatewaydaemon.service

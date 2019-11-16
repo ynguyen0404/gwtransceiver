@@ -46,3 +46,6 @@ unix:!android: config.path = /etc/default
 config.files = data/gwtransceive.conf
 !isEmpty(config.path): INSTALLS += config
 
+unix:!android: service.path = /lib/systemd/system
+service.files = data/gwtransceiver.service
+!isEmpty(service.path): INSTALLS += service
