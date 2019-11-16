@@ -69,23 +69,23 @@ int main(int argc, char *argv[])
     QThread *m_SerialThread = new QThread(&a);
     qDebug() << "Gateway UID: " << cGatewayUID::getGateWayUID();
 
-    // Set Default Value
-    m_connInfo.setHostName("103.232.120.72");
-    //m_connInfo.setHostName("tailor.cloudmqtt.com");
-    m_connInfo.setPort(30200);
-    // m_connInfo.setPort(17082);
-    m_connInfo.setClientId("paho2541357560754");
-    m_connInfo.setUserName("device@microbase.tech");
-    m_connInfo.setPassword("123456789");
-    //m_connInfo.setUserName("khlrlaie");
-    //m_connInfo.setPassword("oxSj4ZD4xqEI");
-    m_connInfo.setQoS(2);
-    m_connInfo.setTopicPublicNoResponse("/Oe8lpCDMj6tKh5DrBHvRonshuDQa/GATEWAY/data");
-    m_connInfo.setTopicSubscribeNoResponse("/Oe8lpCDMj6tKh5DrBHvRonshuDQa/GATEWAY/cmd");
-    m_connInfo.setSerialPortName("/dev/ttyACM0");
-    m_connInfo.setSerialPortBaudrate(static_cast<quint32>(115200));
-    m_parseConfigure.setConfigurationData(m_connInfo);
-    //End of Set Default Value
+//    // Set Default Value
+//    m_connInfo.setHostName("103.232.120.72");
+//    //m_connInfo.setHostName("tailor.cloudmqtt.com");
+//    m_connInfo.setPort(30200);
+//    // m_connInfo.setPort(17082);
+//    m_connInfo.setClientId("paho2541357560754");
+//    m_connInfo.setUserName("device@microbase.tech");
+//    m_connInfo.setPassword("123456789");
+//    //m_connInfo.setUserName("khlrlaie");
+//    //m_connInfo.setPassword("oxSj4ZD4xqEI");
+//    m_connInfo.setQoS(2);
+//    m_connInfo.setTopicPublicNoResponse("/Oe8lpCDMj6tKh5DrBHvRonshuDQa/GATEWAY/data");
+//    m_connInfo.setTopicSubscribeNoResponse("/Oe8lpCDMj6tKh5DrBHvRonshuDQa/GATEWAY/cmd");
+//    m_connInfo.setSerialPortName("/dev/ttyACM0");
+//    m_connInfo.setSerialPortBaudrate(static_cast<quint32>(115200));
+//    m_parseConfigure.setConfigurationData(m_connInfo);
+//    //End of Set Default Value
 
     m_connInfo = m_parseConfigure.getConfigurationData();
 
