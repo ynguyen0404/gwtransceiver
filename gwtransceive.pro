@@ -20,9 +20,11 @@ SOURCES += \
         cConnectionInfo.cpp \
         cDataUtils.cpp \
         cGatewayUID.cpp \
+        cJSONParser.cpp \
         cMqttUtils.cpp \
         cParseConfigureFile.cpp \
         cSerialPortGateway.cpp \
+        cSerialWorker.cpp \
         main.cpp
 
 # Default rules for deployment.
@@ -34,6 +36,8 @@ HEADERS += \
     cConnectionInfo.h \
     cDataUtils.h \
     cGatewayUID.h \
+    cJSONParser.h \
     cMqttUtils.h \
     cParseConfigureFile.h \
-    cSerialPortGateway.h
+    cSerialPortGateway.h \
+    cSerialWorker.h

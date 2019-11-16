@@ -25,10 +25,12 @@ bool cDataUtils::isCheckSumCorrect(QByteArray array)
 {
     bool retVal = false;
     QByteArray tempArary = array;
-    quint8 checksum = tempArary.at(tempArary.length() - 1);
-    tempArary.remove(tempArary.length() - 1, 1);
-    if (checkSum(tempArary) == checksum) {
-        retVal = true;
+    if (tempArary.length() > 2) {
+        quint8 checksum = tempArary.at(tempArary.length() - 1);
+        tempArary.remove(tempArary.length() - 1, 1);
+        if (checkSum(tempArary) == checksum) {
+            retVal = true;
+        }
     }
     return retVal;
 }
@@ -49,6 +51,17 @@ QByteArray cDataUtils::commandReadData()
     retVal.append(static_cast<char>(0x01));
     retVal.append(static_cast<char>(0x00));
     retVal.append(static_cast<char>(0x00));
+    retVal.append(static_cast<char>(checkSum(retVal)));
+    return retVal;
+}
+
+QByteArray cDataUtils::commandACK()
+{
+    QByteArray retVal;
+    retVal.append(static_cast<char>(0xFF));
+    retVal.append(static_cast<char>(0x00));
+    retVal.append(static_cast<char>(0x01));
+    retVal.append(static_cast<char>(0x06));
     retVal.append(static_cast<char>(checkSum(retVal)));
     return retVal;
 }

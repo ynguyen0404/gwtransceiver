@@ -14,6 +14,7 @@ public:
     static bool isCheckSumCorrect(QByteArray array);
     static QByteArray commandNumOfDataExist();
     static QByteArray commandReadData();
+    static QByteArray commandACK();
 };
 
 #endif // CDATAUTILS_H

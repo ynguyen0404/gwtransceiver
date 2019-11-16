@@ -6,10 +6,16 @@
 #include <QJsonDocument>
 #include <QJsonObject>
 #include <QJsonArray>
+#include <QMutex>
+#include "cJSONParser.h"
+
+
+cMqttUtils *cMqttUtils::m_Instance = nullptr;
+
 
 cMqttUtils::cMqttUtils(QObject *parent) : QObject(parent)
 {
-    m_client = new QMqttClient();
+    m_client = new QMqttClient(parent);
     m_ParseConfigureFile = new cParseConfigureFile();
     m_connectionInfo = m_ParseConfigureFile->getConfigurationData();
 
@@ -20,10 +26,13 @@ cMqttUtils::cMqttUtils(QObject *parent) : QObject(parent)
     m_client->setPassword(m_connectionInfo.getPassword());
     m_client->setWillQoS(m_connectionInfo.getQoS());
     m_client->setProtocolVersion(QMqttClient::MQTT_3_1_1);
-
+    m_client->setKeepAlive(7200);
     connect(m_client, &QMqttClient::messageReceived, this, &cMqttUtils::on_ReceivedMessage);
     connect(m_client, &QMqttClient::stateChanged, this, &cMqttUtils::on_ConnectionStateChange);
-    m_client->connectToHost();
+    connect(m_client, &QMqttClient::connected, this, &cMqttUtils::on_ConnectionConnected);
+    connect(m_client, &QMqttClient::disconnected, this, &cMqttUtils::on_ConnectionDisconnected);
+    m_SerialWorker = cSerialWorker::instance();
+    m_SerialPortGW = cSerialPortGateway::instance();
 }
 
 cMqttUtils::~cMqttUtils()
@@ -31,16 +40,53 @@ cMqttUtils::~cMqttUtils()
     delete m_client;
 }
 
+cMqttUtils *cMqttUtils::instance(QObject *parent)
+{
+    static QMutex mutex;
+    if (m_Instance == nullptr) {
+        mutex.lock();
+        m_Instance = new cMqttUtils(parent);
+        mutex.unlock();
+    }
+    return m_Instance;
+}
+
+
+void cMqttUtils::drop()
+{
+    static QMutex mutex;
+    mutex.lock();
+    delete m_Instance;
+    m_Instance = nullptr;
+    mutex.unlock();
+}
+
 void cMqttUtils::connectToServer()
 {
-    if (m_client != nullptr)
-        m_client->connectToHost();
+    if (m_client != nullptr) {
+        QTimer::singleShot(100, m_client, SLOT(connectToHost()));
+    }
 }
 
 void cMqttUtils::disconnectToServer()
 {
     if (m_client != nullptr)
-        m_client->disconnectFromHost();
+    {
+       m_client->disconnectFromHost();
+    }
+}
+
+bool cMqttUtils::isConnected()
+{
+    bool retVal = false;
+    if (m_client->state() == QMqttClient::Connected)
+        retVal = true;
+    return retVal;
+}
+
+QMqttClient::ClientState cMqttUtils::getState()
+{
+    return m_client->state();
 }
 
 void cMqttUtils::on_ConnectionStateChange()
@@ -50,14 +96,25 @@ void cMqttUtils::on_ConnectionStateChange()
                     + QString::number(m_client->state())
                     + QLatin1Char('\n');
     qDebug() << "New State: " << content;
-    if (m_client->state() == QMqttClient::Connected) {
-        auto subscription = m_client->subscribe(QMqttTopicFilter(m_connectionInfo.getTopicSubscribeNoResponse()));
-        qDebug() << "Subscription Response Code: " << subscription;
-        if (!subscription) {
-            qDebug("Could not subscribe. Is there a valid connection?");
-            m_client->disconnectFromHost();
-        }
+}
+
+void cMqttUtils::on_ConnectionConnected()
+{
+    auto subscription = m_client->subscribe(QMqttTopicFilter(m_connectionInfo.getTopicSubscribeNoResponse()), m_connectionInfo.getQoS());
+    qDebug() << "Subscription Response Code: " << subscription;
+    if (!subscription) {
+        qDebug("Could not subscribe. Is there a valid connection?");
+        m_client->disconnectFromHost();
+    } else {
+        m_IsConnected = true;
     }
+    emit sigConnectedToServer();
+}
+
+void cMqttUtils::on_ConnectionDisconnected()
+{
+    qDebug() << "Disconnected From Server, Client Error: " << m_client->error();
+    emit sigDisconnectedFromServer();
 }
 
 void cMqttUtils::on_ReceivedMessage(const QByteArray &message, const QMqttTopicName &topic)
@@ -67,32 +124,22 @@ void cMqttUtils::on_ReceivedMessage(const QByteArray &message, const QMqttTopicN
                 + topic.name()
                 + QLatin1String(" Message: ")
                 + message;
-
     qDebug() << "Received Message From Server: " << content;
-    //Parse JSON de lay Raw Command
-    emit sendCommandToNode(message);
+    QByteArray serverCommand;
+    serverCommand = cJSONParser::rawCommandFromServer(message);
+    qDebug() << "Command To Node: " << serverCommand;
+    m_SerialPortGW->setNodeCommand(serverCommand);
+    m_SerialWorker->requestMethod(cSerialWorker::FORWARD_COMMAND);
 }
 
 void cMqttUtils::on_PublicDataToServer(QByteArray data)
 {
-    Q_UNUSED(data);
-    qDebug() << "Public Topic Name: " << m_connectionInfo.getTopicPublicNoResponse();
-    QVariantMap exampleJson;
-    QByteArray ba;
-    ba.resize(5);
-    ba[0] = 0x3c;
-    ba[1] = 0xb8;
-    ba[2] = 0x64;
-    ba[3] = 0x18;
-    ba[4] = 0xca;
-    QJsonArray jsonArray;
-    jsonArray.append(QJsonValue(ba[0]));
-    jsonArray.append(QJsonValue(ba[1]));
-    jsonArray.append(QJsonValue(ba[2]));
-    QJsonObject itemObj;
-    itemObj.insert("data", QJsonValue(jsonArray));
-    QJsonDocument m_configInfoJson = QJsonDocument(itemObj);
-    int val = m_client->publish(QMqttTopicName(m_connectionInfo.getTopicPublicNoResponse()), m_configInfoJson.toJson(), 2);
-    qDebug() << "Public Return Val: " << val;
+    QJsonDocument dataToSend = cJSONParser::createJSONToServer(data);
+    if (m_client->state() == QMqttClient::Connected) {
+        qDebug() << "Public Topic Name: " << m_connectionInfo.getTopicPublicNoResponse();
+        qDebug() << "JSON To Server: " << dataToSend.toJson(QJsonDocument::Compact);
+        int val = m_client->publish(QMqttTopicName(m_connectionInfo.getTopicPublicNoResponse()), dataToSend.toJson(QJsonDocument::Compact), 2);
+        qDebug() << "Public Return Val: " << val;
+    }
 }
 
