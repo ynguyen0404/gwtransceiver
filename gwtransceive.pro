@@ -27,11 +27,6 @@ SOURCES += \
         cSerialWorker.cpp \
         main.cpp
 
-# Default rules for deployment.
-qnx: target.path = /tmp/$${TARGET}/bin
-else: unix:!android: target.path = /opt/$${TARGET}/bin
-!isEmpty(target.path): INSTALLS += target
-
 HEADERS += \
     cConnectionInfo.h \
     cDataUtils.h \
@@ -41,3 +36,13 @@ HEADERS += \
     cParseConfigureFile.h \
     cSerialPortGateway.h \
     cSerialWorker.h
+
+# Default rules for deployment.
+qnx: target.path = /tmp/$${TARGET}/bin
+else: unix:!android: target.path = /opt/$${TARGET}/bin
+!isEmpty(target.path): INSTALLS += target
+
+unix:!android: config.path = /etc/default
+config.files = data/gwtransceive.conf
+!isEmpty(config.path): INSTALLS += config
+
