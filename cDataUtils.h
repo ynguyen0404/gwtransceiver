@@ -15,6 +15,7 @@ public:
     static QByteArray commandNumOfDataExist();
     static QByteArray commandReadData();
     static QByteArray commandACK();
+    static QByteArray commandSetDateTime();
 };
 
 #endif // CDATAUTILS_H

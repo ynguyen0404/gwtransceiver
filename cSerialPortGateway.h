@@ -42,6 +42,7 @@ signals:
 public slots:
     void on_ReadNodeData();
     void on_ForwardCommandToNode();
+    void on_SetDateTime();
 };
 
 #endif // CSERIALPORTGATEWAY_H

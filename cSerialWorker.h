@@ -30,6 +30,7 @@ signals:
     void finished();
     void sigReadNodeData();
     void sigForwardCommand();
+    void sigSendDateTime();
 public slots:
     void mainLoop();
 };

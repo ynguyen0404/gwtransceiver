@@ -1,4 +1,5 @@
 #include "cDataUtils.h"
+#include <QDateTime>
 
 cDataUtils::cDataUtils(QObject *parent) : QObject(parent)
 {
@@ -62,6 +63,24 @@ QByteArray cDataUtils::commandACK()
     retVal.append(static_cast<char>(0x00));
     retVal.append(static_cast<char>(0x01));
     retVal.append(static_cast<char>(0x06));
+    retVal.append(static_cast<char>(checkSum(retVal)));
+    return retVal;
+}
+
+QByteArray cDataUtils::commandSetDateTime()
+{
+    QByteArray retVal;
+    QDateTime currentTime = QDateTime::currentDateTime();
+    retVal.append(static_cast<char>(0x83));
+    retVal.append(static_cast<char>(0x00));
+    retVal.append(static_cast<char>(0x06));
+    // yyMMddhhmmss
+    retVal.append(static_cast<char>(currentTime.date().year() % 100));
+    retVal.append(static_cast<char>(currentTime.date().month()));
+    retVal.append(static_cast<char>(currentTime.date().day()));
+    retVal.append(static_cast<char>(currentTime.time().hour()));
+    retVal.append(static_cast<char>(currentTime.time().minute()));
+    retVal.append(static_cast<char>(currentTime.time().second()));
     retVal.append(static_cast<char>(checkSum(retVal)));
     return retVal;
 }

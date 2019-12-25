@@ -11,6 +11,7 @@
 #include <QDebug>
 #include <QThread>
 
+
 void myMessageHandler(QtMsgType type,const QMessageLogContext &context,const QString &msg)
 {
     const QString homeFolder = QStandardPaths::writableLocation(QStandardPaths::DataLocation);
@@ -106,6 +107,8 @@ int main(int argc, char *argv[])
        QThread::sleep(4);
     }
 
+    m_SerialPortGw->on_SetDateTime();
+
     a.connect(m_SerialPortGw, &cSerialPortGateway::sigSendDataToServer, [m_mqttUtils] (QByteArray dataToServer) {
         if (m_mqttUtils->getState() == QMqttClient::Connected) {
             qDebug() << "Data Ready To Server";
@@ -122,6 +125,7 @@ int main(int argc, char *argv[])
         qDebug() << "Connected To Mqtt Server";
         if (!m_SerialThread->isRunning())
             QTimer::singleShot(3000, m_SerialThread, SLOT(start()));
+
 
     });
 

@@ -279,6 +279,12 @@ void cSerialPortGateway::on_ForwardCommandToNode()
 
 }
 
+void cSerialPortGateway::on_SetDateTime()
+{
+    QByteArray datetimeCommand = cDataUtils::commandSetDateTime();
+    forwardCommandFromServer(datetimeCommand);
+}
+
 void cSerialPortGateway::writeData(const QByteArray &data)
 {
     int retry = 3;
