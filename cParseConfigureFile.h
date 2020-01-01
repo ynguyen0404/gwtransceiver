@@ -12,7 +12,6 @@ public:
     ~cParseConfigureFile();
     cConnectionInfo getConfigurationData();
     void setConfigurationData(cConnectionInfo conInfo);
-
 };
 
 #endif // CPARSECONFIGUREFILE_H

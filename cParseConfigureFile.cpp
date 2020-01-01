@@ -35,7 +35,7 @@ cConnectionInfo cParseConfigureFile::getConfigurationData()
     m_connInfo.setTopicSubscribeNoResponse("/Oe8lpCDMj6tKh5DrBHvRonshuDQa/GATEWAY/cmd");
     m_connInfo.setSerialPortName("/dev/ttymxc1");
     m_connInfo.setSerialPortBaudrate(static_cast<quint32>(115200));
-
+    m_connInfo.setPollPeriod(5);
     if (cfgFile.exists()) {
         if(cfgFile.open(QIODevice::ReadOnly)) {
             QTextStream in(&cfgFile);
@@ -53,7 +53,8 @@ cConnectionInfo cParseConfigureFile::getConfigurationData()
                 m_connInfo.setTopicPublicNoResponse(itemObj.take("pubnoreptopic").toString());
                 m_connInfo.setTopicSubscribeNoResponse(itemObj.take("subnoreptopic").toString());
                 m_connInfo.setSerialPortName(itemObj.take("serialport").toString());
-                m_connInfo.setSerialPortBaudrate(static_cast<quint32>(itemObj.take("serialportbaud").toInt()));
+                m_connInfo.setSerialPortBaudrate(static_cast<qint32>(itemObj.take("serialportbaud").toInt()));
+                m_connInfo.setPollPeriod(itemObj.take("pollperiod").toInt());
             }
         }
     }
@@ -74,6 +75,7 @@ void cParseConfigureFile::setConfigurationData(cConnectionInfo conInfo)
     m_ConnfigInfoMap.insert("subnoreptopic", conInfo.getTopicSubscribeNoResponse());
     m_ConnfigInfoMap.insert("serialport", conInfo.getSerialPortName());
     m_ConnfigInfoMap.insert("serialportbaud", conInfo.getSerialPortBaudrate());
+    m_ConnfigInfoMap.insert("pollperiod", conInfo.getPollPeriod());
 
     QJsonObject itemObj = QJsonObject::fromVariantMap(m_ConnfigInfoMap);
     QJsonDocument m_configInfoJson = QJsonDocument(itemObj);
@@ -83,5 +85,6 @@ void cParseConfigureFile::setConfigurationData(cConnectionInfo conInfo)
         cfgFile.close();
     }
 }
+
 
 

@@ -22,6 +22,7 @@ public:
     QString getTopicSubscribeNoResponse() const;
     QString getSerialPortName() const;
     qint32 getSerialPortBaudrate() const;
+    qint32 getPollPeriod() const;
 
     void setHostName(QString hostname);
     void setPort(quint16 port);
@@ -32,8 +33,8 @@ public:
     void setTopicPublicNoResponse(QString topic);
     void setTopicSubscribeNoResponse(QString topic);
     void setSerialPortName(QString portName);
-    void setSerialPortBaudrate(quint32 baudrate);
-
+    void setSerialPortBaudrate(qint32 baudrate);
+    void setPollPeriod(qint32 seccond);
 private:
     QString m_HostName = nullptr;
     quint16 m_Port = 1883;
@@ -45,6 +46,7 @@ private:
     QString m_TopicSubscribeNoResponse = nullptr;
     QString m_SerialPortName = nullptr;
     qint32 m_SerialPortBaud = 0;
+    qint32 m_PollingPeriod = 1;
 };
 
 Q_DECLARE_METATYPE(cConnectionInfo)

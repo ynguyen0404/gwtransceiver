@@ -18,12 +18,14 @@ public:
     static void drop();
     void abort();
     void requestMethod(int m_method);
+    void setPollPeriod(qint32 sec);
 private:
     void delay(quint64 ms);
 private:
     static cSerialWorker *m_Instance;
     bool m_Abort;
     int m_Method;
+    quint64 m_PollPeriod = 5000;
     bool m_CancelDelay;
     QMutex m_Mutex;
 signals:

@@ -92,6 +92,7 @@ int main(int argc, char *argv[])
 
 
     m_SerialWorker = cSerialWorker::instance();
+    m_SerialWorker->setPollPeriod(m_connInfo.getPollPeriod());
     m_SerialWorker->moveToThread(m_SerialThread);
     QObject::connect(m_SerialThread, &QThread::started, m_SerialWorker, &cSerialWorker::mainLoop);
     QObject::connect(m_SerialWorker, &cSerialWorker::finished, m_SerialThread, &QThread::quit, Qt::DirectConnection);

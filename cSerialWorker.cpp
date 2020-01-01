@@ -45,6 +45,12 @@ void cSerialWorker::requestMethod(int m_method)
     m_CancelDelay = true;
 }
 
+void cSerialWorker::setPollPeriod(qint32 sec)
+{
+    QMutexLocker locker(&m_Mutex);
+    m_PollPeriod = static_cast<quint64>(sec * 1000);
+}
+
 void cSerialWorker::delay(quint64 ms)
 {
     while (!m_CancelDelay && ms-- > 0) {
@@ -76,6 +82,6 @@ void cSerialWorker::mainLoop()
             break;
         }
         // Chia nho sleep ra der ngat khi co request Method
-        delay(5000);
+        delay(m_PollPeriod);
     }
 }

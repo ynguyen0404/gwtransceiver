@@ -15,7 +15,8 @@ cConnectionInfo::cConnectionInfo(const cConnectionInfo &other)
   m_TopicPublicNoResponse(other.m_TopicPublicNoResponse),
   m_TopicSubscribeNoResponse(other.m_TopicSubscribeNoResponse),
   m_SerialPortName(other.m_SerialPortName),
-  m_SerialPortBaud(other.m_SerialPortBaud)
+  m_SerialPortBaud(other.m_SerialPortBaud),
+  m_PollingPeriod(other.m_PollingPeriod)
 {
 
 }
@@ -75,6 +76,11 @@ qint32 cConnectionInfo::getSerialPortBaudrate() const
     return m_SerialPortBaud;
 }
 
+qint32 cConnectionInfo::getPollPeriod() const
+{
+    return m_PollingPeriod;
+}
+
 void cConnectionInfo::setHostName(QString hostname)
 {
     m_HostName = hostname;
@@ -120,8 +126,13 @@ void cConnectionInfo::setSerialPortName(QString portName)
     m_SerialPortName = portName;
 }
 
-void cConnectionInfo::setSerialPortBaudrate(quint32 baudrate)
+void cConnectionInfo::setSerialPortBaudrate(qint32 baudrate)
 {
     m_SerialPortBaud = baudrate;
+}
+
+void cConnectionInfo::setPollPeriod(qint32 seccond)
+{
+    m_PollingPeriod = seccond;
 }
 
