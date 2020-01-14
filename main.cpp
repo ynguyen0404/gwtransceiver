@@ -10,7 +10,10 @@
 #include <QFile>
 #include <QDebug>
 #include <QThread>
-
+#include <NetworkManagerQt/Manager>
+#include <NetworkManagerQt/Device>
+#include <NetworkManagerQt/WirelessDevice>
+#include <NetworkManagerQt/WiredDevice>
 
 void myMessageHandler(QtMsgType type,const QMessageLogContext &context,const QString &msg)
 {
@@ -68,6 +71,9 @@ int main(int argc, char *argv[])
     cSerialPortGateway *m_SerialPortGw = nullptr;
     cSerialWorker *m_SerialWorker = nullptr;
     QThread *m_SerialThread = new QThread(&a);
+    NetworkManager::Device::List deviceList = NetworkManager::networkInterfaces();
+    NetworkManager::WirelessDevice::Ptr wifiDevice;
+
     qDebug() << "Gateway UID: " << cGatewayUID::getGateWayUID();
 
 //    // Set Default Value
@@ -132,11 +138,29 @@ int main(int argc, char *argv[])
 
 //    QObject::connect(m_mqttUtils, &cMqttUtils::sigSendCommandToNode, m_SerialPortGw, &cSerialPortGateway::on_ForwardCommandToNode);
 
-    a.connect(m_mqttUtils, &cMqttUtils::sigDisconnectedFromServer, [m_mqttUtils] () {
-        m_mqttUtils->connectToServer();;
-    });
+//    a.connect(m_mqttUtils, &cMqttUtils::sigDisconnectedFromServer, [m_mqttUtils] () {
+//        m_mqttUtils->connectToServer();;
+//    });
 
-    m_mqttUtils->connectToServer();
-
+    foreach (NetworkManager::Device::Ptr dev, deviceList)
+    {
+        if (dev->type() == NetworkManager::Device::Wifi) {
+            wifiDevice = qobject_cast<NetworkManager::WirelessDevice *>(dev);
+            qDebug() << "Wifi Devie Gateway: " << wifiDevice->hardwareAddress();
+            if (wifiDevice->state() == NetworkManager::Device::State::Activated) {
+                m_mqttUtils->connectToServer();
+            }
+            a.connect(wifiDevice.data(), &NetworkManager::WirelessDevice::stateChanged, [m_mqttUtils] (NetworkManager::Device::State newstate, NetworkManager::Device::State oldstate, NetworkManager::Device::StateChangeReason reason) {
+                qDebug() << "Wifi State Change Reason State : " << reason;
+                qDebug() << "Wifi State Change Old State : " << oldstate;
+                qDebug() << "Wifi State Change New State : " << newstate;
+                if (newstate == NetworkManager::Device::State::Disconnected) {
+                    m_mqttUtils->disconnectToServer();
+                } else if (newstate == NetworkManager::Device::State::Activated) {
+                    m_mqttUtils->connectToServer();
+                }
+            });
+        }
+    }
     return a.exec();
 }
