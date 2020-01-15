@@ -1,6 +1,6 @@
 QT -= gui
 
-QT += mqtt serialport network NetworkManagerQt dbus
+QT += mqtt serialport network dbus
 
 CONFIG += c++11 console
 CONFIG -= app_bundle
