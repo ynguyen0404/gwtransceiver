@@ -124,7 +124,7 @@ int main(int argc, char *argv[])
             qDebug() << "Connecting ...";
             qDebug() << "Data Lost: " << dataToServer;
         } else {
-            qDebug() << "Connection Lost, Retrying....";
+            qDebug() << "Connection Lost, Waiting For Network Connection....";
         }
     });
 
@@ -136,6 +136,15 @@ int main(int argc, char *argv[])
 
     });
 
+    a.connect(NetworkManager::notifier(), &NetworkManager::Notifier::primaryConnectionChanged, [m_mqttUtils] (QString uni) {
+        qDebug() << "primaryConnectionChanged: " << uni;
+        qDebug() << "Disconnecting From Server...";
+        m_mqttUtils->disconnectToServer();
+        if (QString::compare(uni, "/")) {
+            m_mqttUtils->connectToServer();
+        }
+    });
+
 //    QObject::connect(m_mqttUtils, &cMqttUtils::sigSendCommandToNode, m_SerialPortGw, &cSerialPortGateway::on_ForwardCommandToNode);
 
 //    a.connect(m_mqttUtils, &cMqttUtils::sigDisconnectedFromServer, [m_mqttUtils] () {
@@ -144,22 +153,10 @@ int main(int argc, char *argv[])
 
     foreach (NetworkManager::Device::Ptr dev, deviceList)
     {
-        if (dev->type() == NetworkManager::Device::Wifi) {
-            wifiDevice = qobject_cast<NetworkManager::WirelessDevice *>(dev);
-            qDebug() << "Wifi Devie Gateway: " << wifiDevice->hardwareAddress();
-            if (wifiDevice->state() == NetworkManager::Device::State::Activated) {
-                m_mqttUtils->connectToServer();
-            }
-            a.connect(wifiDevice.data(), &NetworkManager::WirelessDevice::stateChanged, [m_mqttUtils] (NetworkManager::Device::State newstate, NetworkManager::Device::State oldstate, NetworkManager::Device::StateChangeReason reason) {
-                qDebug() << "Wifi State Change Reason State : " << reason;
-                qDebug() << "Wifi State Change Old State : " << oldstate;
-                qDebug() << "Wifi State Change New State : " << newstate;
-                if (newstate == NetworkManager::Device::State::Disconnected) {
-                    m_mqttUtils->disconnectToServer();
-                } else if (newstate == NetworkManager::Device::State::Activated) {
-                    m_mqttUtils->connectToServer();
-                }
-            });
+        qDebug() << "Found Devices: " << dev->type();
+        if (dev->state() == NetworkManager::Device::State::Activated) {
+            m_mqttUtils->connectToServer();
+            break;
         }
     }
     return a.exec();
