@@ -1,6 +1,6 @@
 QT -= gui
 
-QT += mqtt serialport network dbus
+QT += mqtt serialport network dbus NetworkManagerQt
 
 CONFIG += c++11 console
 CONFIG -= app_bundle
@@ -17,6 +17,7 @@ DEFINES += QT_DEPRECATED_WARNINGS
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
 SOURCES += \
+        cChirpstackMqtt.cpp \
         cConnectionInfo.cpp \
         cDataUtils.cpp \
         cGatewayUID.cpp \
@@ -28,6 +29,7 @@ SOURCES += \
         main.cpp
 
 HEADERS += \
+    cChirpstackMqtt.h \
     cConnectionInfo.h \
     cDataUtils.h \
     cGatewayUID.h \

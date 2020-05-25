@@ -1,50 +1,50 @@
-#ifndef CMQTTUTILS_H
-#define CMQTTUTILS_H
+#ifndef CCHIRPSTACKMQTT_H
+#define CCHIRPSTACKMQTT_H
 
 #include <QObject>
 #include <QThread>
 #include <QMqttClient>
 #include "cConnectionInfo.h"
 #include "cParseConfigureFile.h"
-#include "cSerialWorker.h"
-#include "cSerialPortGateway.h"
-#include <QTimer>
-class cMqttUtils : public QObject
+
+class cChirpstackMqtt : public QObject
 {
     Q_OBJECT
 public:
-    explicit cMqttUtils(QObject *parent = nullptr);
+    explicit cChirpstackMqtt(QObject *parent = nullptr);
+    ~cChirpstackMqtt();
 
-    ~cMqttUtils();
-
-    cMqttUtils (const cMqttUtils &);
-    cMqttUtils& operator=(const cMqttUtils & );
-
-    static cMqttUtils *instance(QObject *parent = nullptr);
+    cChirpstackMqtt (const cChirpstackMqtt &);
+    cChirpstackMqtt& operator=(const cChirpstackMqtt & );
+    static cChirpstackMqtt *instance(QObject *parent = nullptr);
     static void drop();
 
     void connectToServer();
     void disconnectToServer();
     bool isConnected();
     QMqttClient::ClientState getState();
+
+
 private:
     QMqttClient *m_client = nullptr;
+    static cChirpstackMqtt *m_Instance;
+    bool m_isConnected = false;
     cParseConfigureFile *m_ParseConfigureFile = nullptr;
     cConnectionInfo m_connectionInfo;
-    static cMqttUtils *m_Instance;
     bool m_IsConnected = false;
 signals:
     void sigConnectedToServer();
     void sigDisconnectedFromServer();
-    void sigSendCommandToNode(QByteArray data);
+    void sigDataToVuServer(QByteArray data);
+
 public slots:
     void on_ConnectionStateChange();
     void on_ConnectionConnected();
     void on_ConnectionDisconnected();
     void on_ReceivedMessage(const QByteArray &message, const QMqttTopicName &topic);
     // Khi doc du lieu tu node sex goi slot nay de gui len server
-    void on_PublicDataToServer(QByteArray data);
-
+    void on_SendDateTimeToNode();
+    void on_SendDataToNode(QByteArray baseArray);
 };
 
-#endif // CMQTTUTILS_H
+#endif // CCHIRPSTACKMQTT_H

@@ -6,6 +6,7 @@
 #include "cSerialPortGateway.h"
 #include "cSerialWorker.h"
 #include "cGatewayUID.h"
+#include "cChirpstackMqtt.h"
 #include <QStandardPaths>
 #include <QFile>
 #include <QDebug>
@@ -66,11 +67,8 @@ int main(int argc, char *argv[])
     qInstallMessageHandler(myMessageHandler);
 #endif
     cParseConfigureFile m_parseConfigure;
-    cConnectionInfo m_connInfo;
     cMqttUtils *m_mqttUtils = nullptr;
-    cSerialPortGateway *m_SerialPortGw = nullptr;
-    cSerialWorker *m_SerialWorker = nullptr;
-    QThread *m_SerialThread = new QThread(&a);
+    cChirpstackMqtt *m_ChirpstackMqtt = nullptr;
     NetworkManager::Device::List deviceList = NetworkManager::networkInterfaces();
     NetworkManager::WirelessDevice::Ptr wifiDevice;
 
@@ -94,29 +92,24 @@ int main(int argc, char *argv[])
 //    m_parseConfigure.setConfigurationData(m_connInfo);
 //    //End of Set Default Value
 
-    m_connInfo = m_parseConfigure.getConfigurationData();
-
-
-    m_SerialWorker = cSerialWorker::instance();
-    m_SerialWorker->setPollPeriod(m_connInfo.getPollPeriod());
-    m_SerialWorker->moveToThread(m_SerialThread);
-    QObject::connect(m_SerialThread, &QThread::started, m_SerialWorker, &cSerialWorker::mainLoop);
-    QObject::connect(m_SerialWorker, &cSerialWorker::finished, m_SerialThread, &QThread::quit, Qt::DirectConnection);
-
-    m_SerialPortGw = cSerialPortGateway::instance();
-    QObject::connect(m_SerialWorker, &cSerialWorker::sigReadNodeData, m_SerialPortGw, &cSerialPortGateway::on_ReadNodeData);
-    QObject::connect(m_SerialWorker, &cSerialWorker::sigForwardCommand, m_SerialPortGw, &cSerialPortGateway::on_ForwardCommandToNode);
-
     m_mqttUtils = cMqttUtils::instance(&a);
 
+    m_ChirpstackMqtt = cChirpstackMqtt::instance(&a);
 
-    while (!m_SerialPortGw->initSerialPort(m_connInfo.getSerialPortName(), m_connInfo.getSerialPortBaudrate())) {
-       QThread::sleep(4);
-    }
 
-    m_SerialPortGw->on_SetDateTime();
+    //Send Datetime to Node
 
-    a.connect(m_SerialPortGw, &cSerialPortGateway::sigSendDataToServer, [m_mqttUtils] (QByteArray dataToServer) {
+    a.connect(m_ChirpstackMqtt, &cChirpstackMqtt::sigConnectedToServer, [] () {
+        qDebug() << "Enqueue Local Date Time to Node";
+
+    });
+
+    a.connect(m_mqttUtils, &cMqttUtils::sigSendCommandToNode, [m_ChirpstackMqtt] (QByteArray dataToNode) {
+        m_ChirpstackMqtt->on_SendDataToNode(dataToNode);
+    });
+//    m_SerialPortGw->on_SetDateTime();
+
+    a.connect(m_ChirpstackMqtt, &cChirpstackMqtt::sigDataToVuServer, [m_mqttUtils] (QByteArray dataToServer) {
         if (m_mqttUtils->getState() == QMqttClient::Connected) {
             qDebug() << "Data Ready To Server";
             m_mqttUtils->on_PublicDataToServer(dataToServer);
@@ -128,14 +121,6 @@ int main(int argc, char *argv[])
         }
     });
 
-    a.connect(m_mqttUtils, &cMqttUtils::sigConnectedToServer, [m_SerialThread] () {
-        qDebug() << "Connected To Mqtt Server";
-        if (!m_SerialThread->isRunning())
-            QTimer::singleShot(3000, m_SerialThread, SLOT(start()));
-
-
-    });
-
     a.connect(NetworkManager::notifier(), &NetworkManager::Notifier::primaryConnectionChanged, [m_mqttUtils] (QString uni) {
         qDebug() << "primaryConnectionChanged: " << uni;
         qDebug() << "Disconnecting From Server...";
@@ -145,16 +130,17 @@ int main(int argc, char *argv[])
         }
     });
 
-//    QObject::connect(m_mqttUtils, &cMqttUtils::sigSendCommandToNode, m_SerialPortGw, &cSerialPortGateway::on_ForwardCommandToNode);
+////    QObject::connect(m_mqttUtils, &cMqttUtils::sigSendCommandToNode, m_SerialPortGw, &cSerialPortGateway::on_ForwardCommandToNode);
 
-//    a.connect(m_mqttUtils, &cMqttUtils::sigDisconnectedFromServer, [m_mqttUtils] () {
-//        m_mqttUtils->connectToServer();;
-//    });
+////    a.connect(m_mqttUtils, &cMqttUtils::sigDisconnectedFromServer, [m_mqttUtils] () {
+////        m_mqttUtils->connectToServer();;
+////    });
 
     foreach (NetworkManager::Device::Ptr dev, deviceList)
     {
         qDebug() << "Found Devices: " << dev->type();
         if (dev->state() == NetworkManager::Device::State::Activated) {
+            m_ChirpstackMqtt->connectToServer();
             m_mqttUtils->connectToServer();
             break;
         }

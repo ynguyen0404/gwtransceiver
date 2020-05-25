@@ -17,6 +17,7 @@ public:
     ~cJSONParser();
     static QByteArray rawCommandFromServer(QByteArray jsonFromServer);
     static QJsonDocument createJSONToServer(QByteArray data);
+    static QJsonDocument createJSONToChirpstackServer(QByteArray data);
 };
 
 #endif // CJSONPARSER_H

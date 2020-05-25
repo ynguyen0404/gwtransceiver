@@ -23,6 +23,9 @@ public:
     QString getSerialPortName() const;
     qint32 getSerialPortBaudrate() const;
     qint32 getPollPeriod() const;
+    QString getGatewayUID() const;
+    QStringList getNodeIDs() const;
+    QStringList getAppID() const;
 
     void setHostName(QString hostname);
     void setPort(quint16 port);
@@ -35,6 +38,9 @@ public:
     void setSerialPortName(QString portName);
     void setSerialPortBaudrate(qint32 baudrate);
     void setPollPeriod(qint32 seccond);
+    void setGatewayUID(QString uid);
+    void setNodeID(QStringList nodeid);
+    void setAppID(QStringList appID);
 private:
     QString m_HostName = nullptr;
     quint16 m_Port = 1883;
@@ -47,6 +53,9 @@ private:
     QString m_SerialPortName = nullptr;
     qint32 m_SerialPortBaud = 0;
     qint32 m_PollingPeriod = 1;
+    QString m_GawewayUID = "";
+    QStringList m_NodeID;
+    QStringList m_AppID;
 };
 
 Q_DECLARE_METATYPE(cConnectionInfo)

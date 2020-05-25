@@ -4,6 +4,7 @@
 #include <QJsonDocument>
 #include <QJsonValue>
 #include <QJsonObject>
+#include <QJsonArray>
 #include <QVariantMap>
 #include <QTextStream>
 #include <QDebug>
@@ -24,7 +25,7 @@ cConnectionInfo cParseConfigureFile::getConfigurationData()
 {
     cConnectionInfo m_connInfo;
     QFile cfgFile(configureFileName);
-
+    QStringList tmpList;
     m_connInfo.setHostName("103.232.120.72");
     m_connInfo.setPort(30200);
     m_connInfo.setClientId("paho2541357560754");
@@ -36,6 +37,8 @@ cConnectionInfo cParseConfigureFile::getConfigurationData()
     m_connInfo.setSerialPortName("/dev/ttymxc1");
     m_connInfo.setSerialPortBaudrate(static_cast<quint32>(115200));
     m_connInfo.setPollPeriod(5);
+    m_connInfo.setGatewayUID("34f64bfffe9f234c");
+
     if (cfgFile.exists()) {
         if(cfgFile.open(QIODevice::ReadOnly)) {
             QTextStream in(&cfgFile);
@@ -55,6 +58,19 @@ cConnectionInfo cParseConfigureFile::getConfigurationData()
                 m_connInfo.setSerialPortName(itemObj.take("serialport").toString());
                 m_connInfo.setSerialPortBaudrate(static_cast<qint32>(itemObj.take("serialportbaud").toInt()));
                 m_connInfo.setPollPeriod(itemObj.take("pollperiod").toInt());
+                m_connInfo.setGatewayUID(itemObj.take("gwid").toString());
+                tmpList.clear();
+                QJsonValue nodeidVal = itemObj.value("nodeuid");
+                QJsonArray nodeidArray = nodeidVal.toArray();
+                foreach (const QJsonValue & v, nodeidArray)
+                        tmpList << v.toString();
+                m_connInfo.setNodeID(tmpList);
+                tmpList.clear();
+                QJsonValue appidVal = itemObj.value("appid");
+                QJsonArray appidArray = appidVal.toArray();
+                foreach (const QJsonValue & v, appidArray)
+                        tmpList << v.toString();
+                m_connInfo.setAppID(tmpList);
             }
         }
     }
@@ -76,7 +92,9 @@ void cParseConfigureFile::setConfigurationData(cConnectionInfo conInfo)
     m_ConnfigInfoMap.insert("serialport", conInfo.getSerialPortName());
     m_ConnfigInfoMap.insert("serialportbaud", conInfo.getSerialPortBaudrate());
     m_ConnfigInfoMap.insert("pollperiod", conInfo.getPollPeriod());
-
+    m_ConnfigInfoMap.insert("gwid", conInfo.getGatewayUID());
+    m_ConnfigInfoMap.insert("nodeuid", conInfo.getNodeIDs());
+    m_ConnfigInfoMap.insert("appid", conInfo.getAppID());
     QJsonObject itemObj = QJsonObject::fromVariantMap(m_ConnfigInfoMap);
     QJsonDocument m_configInfoJson = QJsonDocument(itemObj);
     if(cfgFile.open(QIODevice::WriteOnly | QIODevice::Truncate)) {

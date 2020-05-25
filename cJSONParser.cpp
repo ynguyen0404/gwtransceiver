@@ -50,3 +50,20 @@ QJsonDocument cJSONParser::createJSONToServer(QByteArray data)
     return m_configInfoJson;
 }
 
+QJsonDocument cJSONParser::createJSONToChirpstackServer(QByteArray data)
+{
+    QByteArray dataBase64 = data.toBase64();
+    QJsonObject itemObj;
+    QJsonArray dataArray;
+    qDebug() << "Byte Array: " << data;
+    qDebug() << "BAse 64 Array: " << dataBase64;
+    for (int i = 0; i < dataBase64.count(); i++) {
+        dataArray.append(QJsonValue(dataBase64.at(i)));
+    }
+    itemObj.insert("confirmed", true);
+    itemObj.insert("fPort", 2);
+    itemObj.insert("data", QJsonValue(dataArray));
+    QJsonDocument m_JsonData = QJsonDocument(itemObj);
+    return m_JsonData;
+}
+

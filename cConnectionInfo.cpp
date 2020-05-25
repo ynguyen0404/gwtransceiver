@@ -81,6 +81,21 @@ qint32 cConnectionInfo::getPollPeriod() const
     return m_PollingPeriod;
 }
 
+QString cConnectionInfo::getGatewayUID() const
+{
+    return m_GawewayUID;
+}
+
+QStringList cConnectionInfo::getNodeIDs() const
+{
+    return m_NodeID;
+}
+
+QStringList cConnectionInfo::getAppID() const
+{
+    return m_AppID;
+}
+
 void cConnectionInfo::setHostName(QString hostname)
 {
     m_HostName = hostname;
@@ -134,5 +149,20 @@ void cConnectionInfo::setSerialPortBaudrate(qint32 baudrate)
 void cConnectionInfo::setPollPeriod(qint32 seccond)
 {
     m_PollingPeriod = seccond;
+}
+
+void cConnectionInfo::setGatewayUID(QString uid)
+{
+    m_GawewayUID = uid;
+}
+
+void cConnectionInfo::setNodeID(QStringList nodeid)
+{
+    m_NodeID = nodeid;
+}
+
+void cConnectionInfo::setAppID(QStringList appID)
+{
+    m_AppID = appID;
 }
 

@@ -31,8 +31,6 @@ cMqttUtils::cMqttUtils(QObject *parent) : QObject(parent)
     connect(m_client, &QMqttClient::stateChanged, this, &cMqttUtils::on_ConnectionStateChange);
     connect(m_client, &QMqttClient::connected, this, &cMqttUtils::on_ConnectionConnected);
     connect(m_client, &QMqttClient::disconnected, this, &cMqttUtils::on_ConnectionDisconnected);
-    m_SerialWorker = cSerialWorker::instance();
-    m_SerialPortGW = cSerialPortGateway::instance();
 }
 
 cMqttUtils::~cMqttUtils()
@@ -128,8 +126,7 @@ void cMqttUtils::on_ReceivedMessage(const QByteArray &message, const QMqttTopicN
     QByteArray serverCommand;
     serverCommand = cJSONParser::rawCommandFromServer(message);
     qDebug() << "Command To Node: " << serverCommand;
-    m_SerialPortGW->setNodeCommand(serverCommand);
-    m_SerialWorker->requestMethod(cSerialWorker::FORWARD_COMMAND);
+    emit sigSendCommandToNode(serverCommand);
 }
 
 void cMqttUtils::on_PublicDataToServer(QByteArray data)
