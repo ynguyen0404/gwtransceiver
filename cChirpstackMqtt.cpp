@@ -53,7 +53,7 @@ void cChirpstackMqtt::drop()
 void cChirpstackMqtt::connectToServer()
 {
     if (m_client != nullptr) {
-        QTimer::singleShot(100, m_client, SLOT(connectToHost()));
+        QTimer::singleShot(700, m_client, SLOT(connectToHost()));
     }
 }
 
@@ -85,7 +85,7 @@ void cChirpstackMqtt::on_ConnectionStateChange()
                     + QLatin1String(": State Change")
                     + QString::number(m_client->state())
                     + QLatin1Char('\n');
-    qDebug() << "New State: " << content;
+    qDebug() << "ChirpStack: " << "New State: " << content;
 }
 
 void cChirpstackMqtt::on_ConnectionConnected()
@@ -98,7 +98,7 @@ void cChirpstackMqtt::on_ConnectionConnected()
     }
     foreach (QString topic, subscribeTopics) {
         auto subscription = m_client->subscribe(QMqttTopicFilter(topic), m_connectionInfo.getQoS());
-        qDebug() << "Subscription Response Code: " << subscription;
+        qDebug() << "Chirpstack:" << "Subscription Response Code: " << subscription;
         if (!subscription) {
             qDebug("Could not subscribe. Is there a valid connection?");
             m_client->disconnectFromHost();

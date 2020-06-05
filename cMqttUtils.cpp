@@ -62,7 +62,7 @@ void cMqttUtils::drop()
 void cMqttUtils::connectToServer()
 {
     if (m_client != nullptr) {
-        QTimer::singleShot(100, m_client, SLOT(connectToHost()));
+        QTimer::singleShot(500, m_client, SLOT(connectToHost()));
     }
 }
 
@@ -99,7 +99,7 @@ void cMqttUtils::on_ConnectionStateChange()
 void cMqttUtils::on_ConnectionConnected()
 {
     auto subscription = m_client->subscribe(QMqttTopicFilter(m_connectionInfo.getTopicSubscribeNoResponse()), m_connectionInfo.getQoS());
-    qDebug() << "Subscription Response Code: " << subscription;
+    qDebug() << "cMQtt: " << "Subscription Response Code: " << subscription;
     if (!subscription) {
         qDebug("Could not subscribe. Is there a valid connection?");
         m_client->disconnectFromHost();

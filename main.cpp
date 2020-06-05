@@ -121,12 +121,15 @@ int main(int argc, char *argv[])
         }
     });
 
-    a.connect(NetworkManager::notifier(), &NetworkManager::Notifier::primaryConnectionChanged, [m_mqttUtils] (QString uni) {
+    a.connect(NetworkManager::notifier(), &NetworkManager::Notifier::primaryConnectionChanged, [m_mqttUtils, m_ChirpstackMqtt] (QString uni) {
         qDebug() << "primaryConnectionChanged: " << uni;
         qDebug() << "Disconnecting From Server...";
         m_mqttUtils->disconnectToServer();
+        m_ChirpstackMqtt->disconnectToServer();
         if (QString::compare(uni, "/")) {
+            qDebug() << "Connecting To Both Server...";
             m_mqttUtils->connectToServer();
+            m_ChirpstackMqtt->connectToServer();
         }
     });
 
@@ -140,6 +143,7 @@ int main(int argc, char *argv[])
     {
         qDebug() << "Found Devices: " << dev->type();
         if (dev->state() == NetworkManager::Device::State::Activated) {
+            qDebug() << "Connecting To Local Chirpstack Server...";
             m_ChirpstackMqtt->connectToServer();
             m_mqttUtils->connectToServer();
             break;
