@@ -154,14 +154,34 @@ void cChirpstackMqtt::on_SendDateTimeToNode()
     }
 }
 
+static QByteArray stringToByteArray(QString nodeEUI) {
+    QByteArray retVal;
+    QString tmpString;
+    bool isConverOK;
+    if ((nodeEUI.length() % 2) == 0) {
+        for(int i = 0; i < (nodeEUI.length() - 1); i+=2) {
+            tmpString = nodeEUI.mid(i, 2);
+            quint8 tmpNumber = (tmpString.toUInt(&isConverOK, 16) & 0xFF);
+
+            retVal.append(tmpNumber);
+        }
+    }
+    qDebug() << "Device EUI: " << retVal;
+    return retVal;
+}
+
 void cChirpstackMqtt::on_SendDataToNode(QByteArray baseArray)
 {
     QJsonDocument dataToSend = cJSONParser::createJSONToChirpstackServer(baseArray);
     QStringList m_AppID = m_connectionInfo.getAppID();
     QStringList m_nodeID = m_connectionInfo.getNodeIDs();
     QStringList publicTopics;
+
     for(int i = 0; i < m_AppID.count(); i++) {
-        publicTopics << QString("application/%1/device/%2/tx").arg(m_AppID.at(i)).arg(m_nodeID.at(i));
+        QByteArray nodeEUI = stringToByteArray(m_nodeID.at(i));
+        if (baseArray.contains(nodeEUI)) {
+            publicTopics << QString("application/%1/device/%2/tx").arg(m_AppID.at(i)).arg(m_nodeID.at(i));
+        }
     }
     if (m_client->state() == QMqttClient::Connected) {
         foreach (QString topic, publicTopics) {

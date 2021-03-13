@@ -44,6 +44,7 @@ public slots:
     void on_ReceivedMessage(const QByteArray &message, const QMqttTopicName &topic);
     // Khi doc du lieu tu node sex goi slot nay de gui len server
     void on_PublicDataToServer(QByteArray data);
+    void on_PublicKeepAlivePackage();
 
 };
 

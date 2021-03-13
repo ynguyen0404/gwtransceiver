@@ -11,6 +11,7 @@
 #include <QFile>
 #include <QDebug>
 #include <QThread>
+#include <QTimer>
 #include <NetworkManagerQt/Manager>
 #include <NetworkManagerQt/Device>
 #include <NetworkManagerQt/WirelessDevice>
@@ -71,6 +72,7 @@ int main(int argc, char *argv[])
     cChirpstackMqtt *m_ChirpstackMqtt = nullptr;
     NetworkManager::Device::List deviceList = NetworkManager::networkInterfaces();
     NetworkManager::WirelessDevice::Ptr wifiDevice;
+    QTimer m_Timer;
 
     qDebug() << "Gateway UID: " << cGatewayUID::getGateWayUID();
 
@@ -96,7 +98,16 @@ int main(int argc, char *argv[])
 
     m_ChirpstackMqtt = cChirpstackMqtt::instance(&a);
 
-
+    m_Timer.setInterval(60000);
+    a.connect(&m_Timer, &QTimer::timeout, [m_mqttUtils] () {
+        if (m_mqttUtils->getState() == QMqttClient::Connected) {
+            qDebug() << "Send Keep Alive package to server";
+            m_mqttUtils->on_PublicKeepAlivePackage();
+        } else {
+            qDebug() << "Send Keep alive package failed";
+        }
+    });
+    m_Timer.start();
     //Send Datetime to Node
 
     a.connect(m_ChirpstackMqtt, &cChirpstackMqtt::sigConnectedToServer, [] () {
@@ -106,6 +117,10 @@ int main(int argc, char *argv[])
 
     a.connect(m_mqttUtils, &cMqttUtils::sigSendCommandToNode, [m_ChirpstackMqtt] (QByteArray dataToNode) {
         m_ChirpstackMqtt->on_SendDataToNode(dataToNode);
+    });
+    a.connect(m_mqttUtils, &cMqttUtils::sigDisconnectedFromServer, [m_mqttUtils] () {
+        qDebug() << "Disconnected from mqtt Server. Retry ....";
+        m_mqttUtils->connectToServer();
     });
 //    m_SerialPortGw->on_SetDateTime();
 
@@ -132,12 +147,6 @@ int main(int argc, char *argv[])
             m_ChirpstackMqtt->connectToServer();
         }
     });
-
-////    QObject::connect(m_mqttUtils, &cMqttUtils::sigSendCommandToNode, m_SerialPortGw, &cSerialPortGateway::on_ForwardCommandToNode);
-
-////    a.connect(m_mqttUtils, &cMqttUtils::sigDisconnectedFromServer, [m_mqttUtils] () {
-////        m_mqttUtils->connectToServer();;
-////    });
 
     foreach (NetworkManager::Device::Ptr dev, deviceList)
     {

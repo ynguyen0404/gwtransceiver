@@ -1,5 +1,6 @@
 #include "cJSONParser.h"
 #include "cGatewayUID.h"
+#include <QDateTime>
 #include <QDebug>
 
 cJSONParser::cJSONParser(QObject *parent) : QObject(parent)
@@ -65,5 +66,15 @@ QJsonDocument cJSONParser::createJSONToChirpstackServer(QByteArray data)
     itemObj.insert("data", QJsonValue(dataArray));
     QJsonDocument m_JsonData = QJsonDocument(itemObj);
     return m_JsonData;
+}
+
+QJsonDocument cJSONParser::createkeepalivePackage()
+{
+    quint32 gwuid = cGatewayUID::getGateWayUID();
+    QJsonObject itemObj;
+    itemObj.insert("gwuid", static_cast<int>(gwuid));
+    itemObj.insert("time", QDateTime::currentDateTime().toSecsSinceEpoch());
+    QJsonDocument m_keepaliveJson = QJsonDocument(itemObj);
+    return m_keepaliveJson;
 }
 

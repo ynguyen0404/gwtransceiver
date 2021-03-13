@@ -140,3 +140,14 @@ void cMqttUtils::on_PublicDataToServer(QByteArray data)
     }
 }
 
+void cMqttUtils::on_PublicKeepAlivePackage()
+{
+    QJsonDocument dataToSend = cJSONParser::createkeepalivePackage();
+    if (m_client->state() == QMqttClient::Connected) {
+        qDebug() << "Public Topic Name: " << m_connectionInfo.getTopicPublicNoResponse();
+        qDebug() << "JSON To Server: " << dataToSend.toJson(QJsonDocument::Compact);
+        int val = m_client->publish(QMqttTopicName(m_connectionInfo.getTopicPublicNoResponse()), dataToSend.toJson(QJsonDocument::Compact), 2);
+        qDebug() << "Public Return Val: " << val;
+    }
+}
+
