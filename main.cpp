@@ -12,10 +12,10 @@
 #include <QDebug>
 #include <QThread>
 #include <QTimer>
-#include <NetworkManagerQt/Manager>
-#include <NetworkManagerQt/Device>
-#include <NetworkManagerQt/WirelessDevice>
-#include <NetworkManagerQt/WiredDevice>
+//#include <NetworkManagerQt/Manager>
+//#include <NetworkManagerQt/Device>
+//#include <NetworkManagerQt/WirelessDevice>
+//#include <NetworkManagerQt/WiredDevice>
 
 void myMessageHandler(QtMsgType type,const QMessageLogContext &context,const QString &msg)
 {
@@ -39,23 +39,23 @@ void myMessageHandler(QtMsgType type,const QMessageLogContext &context,const QSt
     switch (type) {
     case QtInfoMsg:
         txt = QString("Info: %1 %2 %3:").arg(context.file).arg(context.line).arg(context.function);
-        ts << txt <<"\t"<< QString(msg)<<endl;
+        ts << txt <<"\t"<< QString(msg)<<Qt::endl;
         break;
     case QtDebugMsg:
         txt = QString("Debug: %1 %2 %3:").arg(context.file).arg(context.line).arg(context.function);
-        ts << txt <<"\t"<< QString(msg)<<endl;
+        ts << txt <<"\t"<< QString(msg)<<Qt::endl;
         break;
     case QtWarningMsg:
         txt = QString("Warning: %1 %2 %3:").arg(context.file).arg(context.line).arg(context.function);
-        ts << txt <<"\t"<< QString(msg)<<endl;
+        ts << txt <<"\t"<< QString(msg)<<Qt::endl;
     break;
     case QtCriticalMsg:
         txt = QString("Critical: %1 %2 %3:").arg(context.file).arg(context.line).arg(context.function);
-        ts << txt <<"\t"<< QString(msg)<<endl;
+        ts << txt <<"\t"<< QString(msg)<<Qt::endl;
     break;
     case QtFatalMsg:
         txt = QString("Fatal: %1 %2 %3:").arg(context.file).arg(context.line).arg(context.function);
-        ts << txt <<"\t"<< QString(msg)<<endl;
+        ts << txt <<"\t"<< QString(msg)<<Qt::endl;
         abort();
     }
 }
@@ -70,8 +70,8 @@ int main(int argc, char *argv[])
     cParseConfigureFile m_parseConfigure;
     cMqttUtils *m_mqttUtils = nullptr;
     cChirpstackMqtt *m_ChirpstackMqtt = nullptr;
-    NetworkManager::Device::List deviceList = NetworkManager::networkInterfaces();
-    NetworkManager::WirelessDevice::Ptr wifiDevice;
+//    NetworkManager::Device::List deviceList = NetworkManager::networkInterfaces();
+//    NetworkManager::WirelessDevice::Ptr wifiDevice;
     QTimer m_Timer;
 
     qDebug() << "Gateway UID: " << cGatewayUID::getGateWayUID();
@@ -136,27 +136,30 @@ int main(int argc, char *argv[])
         }
     });
 
-    a.connect(NetworkManager::notifier(), &NetworkManager::Notifier::primaryConnectionChanged, [m_mqttUtils, m_ChirpstackMqtt] (QString uni) {
-        qDebug() << "primaryConnectionChanged: " << uni;
-        qDebug() << "Disconnecting From Server...";
-        m_mqttUtils->disconnectToServer();
-        m_ChirpstackMqtt->disconnectToServer();
-        if (QString::compare(uni, "/")) {
-            qDebug() << "Connecting To Both Server...";
-            m_mqttUtils->connectToServer();
-            m_ChirpstackMqtt->connectToServer();
-        }
-    });
+//    a.connect(NetworkManager::notifier(), &NetworkManager::Notifier::primaryConnectionChanged, [m_mqttUtils, m_ChirpstackMqtt] (QString uni) {
+//        qDebug() << "primaryConnectionChanged: " << uni;
+//        qDebug() << "Disconnecting From Server...";
+//        m_mqttUtils->disconnectToServer();
+//        m_ChirpstackMqtt->disconnectToServer();
+//        if (QString::compare(uni, "/")) {
+//            qDebug() << "Connecting To Both Server...";
+//            m_mqttUtils->connectToServer();
+//            m_ChirpstackMqtt->connectToServer();
+//        }
+//    });
 
-    foreach (NetworkManager::Device::Ptr dev, deviceList)
-    {
-        qDebug() << "Found Devices: " << dev->type();
-        if (dev->state() == NetworkManager::Device::State::Activated) {
-            qDebug() << "Connecting To Local Chirpstack Server...";
-            m_ChirpstackMqtt->connectToServer();
-            m_mqttUtils->connectToServer();
-            break;
-        }
-    }
+//    foreach (NetworkManager::Device::Ptr dev, deviceList)
+//    {
+//        qDebug() << "Found Devices: " << dev->type();
+//        if (dev->state() == NetworkManager::Device::State::Activated) {
+//            qDebug() << "Connecting To Local Chirpstack Server...";
+//            m_ChirpstackMqtt->connectToServer();
+//            m_mqttUtils->connectToServer();
+//            break;
+//        }
+//    }
+    qDebug() << "Connecting To Local Chirpstack Server...";
+    m_ChirpstackMqtt->connectToServer();
+    m_mqttUtils->connectToServer();
     return a.exec();
 }

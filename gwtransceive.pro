@@ -1,6 +1,6 @@
 QT -= gui
 
-QT += mqtt serialport network dbus NetworkManagerQt
+QT += mqtt serialport network dbus
 
 CONFIG += c++11 console
 CONFIG -= app_bundle
@@ -38,12 +38,6 @@ HEADERS += \
     cParseConfigureFile.h \
     cSerialPortGateway.h \
     cSerialWorker.h
-
-INCLUDEPATH += ${OE_QMAKE_INCDIR_QT}/KF5/NetworkManagerQt \
-                ${OE_QMAKE_INCDIR_QT}/glib-2.0 \
-                ${OE_QMAKE_INCDIR_QT}/../lib/glib-2.0/include \
-                ${OE_QMAKE_INCDIR_QT}/libnm
-LIBS += -lKF5NetworkManagerQt
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin
