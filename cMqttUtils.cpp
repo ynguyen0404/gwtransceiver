@@ -98,14 +98,7 @@ void cMqttUtils::on_ConnectionStateChange()
 
 void cMqttUtils::on_ConnectionConnected()
 {
-    auto subscription = m_client->subscribe(QMqttTopicFilter(m_connectionInfo.getTopicSubscribeNoResponse()), m_connectionInfo.getQoS());
-    qDebug() << "cMQtt: " << "Subscription Response Code: " << subscription;
-    if (!subscription) {
-        qDebug("Could not subscribe. Is there a valid connection?");
-        m_client->disconnectFromHost();
-    } else {
-        m_IsConnected = true;
-    }
+    m_IsConnected = true;
     emit sigConnectedToServer();
 }
 
@@ -129,9 +122,9 @@ void cMqttUtils::on_ReceivedMessage(const QByteArray &message, const QMqttTopicN
     emit sigSendCommandToNode(serverCommand);
 }
 
-void cMqttUtils::on_PublicDataToServer(QByteArray data)
+void cMqttUtils::on_PublicDataToServer(QByteArray data, quint32 gwuid)
 {
-    QJsonDocument dataToSend = cJSONParser::createJSONToServer(data);
+    QJsonDocument dataToSend = cJSONParser::createJSONToServer(data, gwuid);
     if (m_client->state() == QMqttClient::Connected) {
         qDebug() << "Public Topic Name: " << m_connectionInfo.getTopicPublicNoResponse();
         qDebug() << "JSON To Server: " << dataToSend.toJson(QJsonDocument::Compact);
@@ -140,14 +133,23 @@ void cMqttUtils::on_PublicDataToServer(QByteArray data)
     }
 }
 
-void cMqttUtils::on_PublicKeepAlivePackage()
+void cMqttUtils::on_PublicKeepAlivePackage(quint32 gwuid)
 {
-    QJsonDocument dataToSend = cJSONParser::createkeepalivePackage();
+    QJsonDocument dataToSend = cJSONParser::createkeepalivePackage(gwuid);
     if (m_client->state() == QMqttClient::Connected) {
         qDebug() << "Public Topic Name: " << m_connectionInfo.getTopicPublicNoResponse();
         qDebug() << "JSON To Server: " << dataToSend.toJson(QJsonDocument::Compact);
         int val = m_client->publish(QMqttTopicName(m_connectionInfo.getTopicPublicNoResponse()), dataToSend.toJson(QJsonDocument::Compact), 2);
         qDebug() << "Public Return Val: " << val;
+    }
+}
+
+void cMqttUtils::on_NewGatewayFound(quint32 gwuid)
+{
+    auto subscription = m_client->subscribe(QMqttTopicFilter(m_connectionInfo.getTopicSubscribeNoResponse().arg(gwuid)), m_connectionInfo.getQoS());
+    qDebug() << "cMQtt: " << "Subscription Response Code: " << subscription;
+    if (!subscription) {
+        qDebug("Could not subscribe. Is there a valid connection?");
     }
 }
 

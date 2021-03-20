@@ -37,9 +37,8 @@ QByteArray cJSONParser::rawCommandFromServer(QByteArray jsonFromServer)
     return command;
 }
 
-QJsonDocument cJSONParser::createJSONToServer(QByteArray data)
+QJsonDocument cJSONParser::createJSONToServer(QByteArray data, quint32 gwuid)
 {
-    quint32 gwuid = cGatewayUID::getGateWayUID();
     QJsonArray commandArray;
     QJsonObject itemObj;
     for (int i = 0; i < data.count(); i++) {
@@ -68,9 +67,8 @@ QJsonDocument cJSONParser::createJSONToChirpstackServer(QByteArray data)
     return m_JsonData;
 }
 
-QJsonDocument cJSONParser::createkeepalivePackage()
+QJsonDocument cJSONParser::createkeepalivePackage(quint32 gwuid)
 {
-    quint32 gwuid = cGatewayUID::getGateWayUID();
     QJsonObject itemObj;
     itemObj.insert("gwuid", static_cast<int>(gwuid));
     itemObj.insert("time", QDateTime::currentDateTime().toSecsSinceEpoch());

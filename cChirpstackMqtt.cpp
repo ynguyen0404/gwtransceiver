@@ -10,6 +10,7 @@ cChirpstackMqtt *cChirpstackMqtt::m_Instance = nullptr;
 
 cChirpstackMqtt::cChirpstackMqtt(QObject *parent) : QObject(parent)
 {
+    gwUIDList.clear();
     m_client = new QMqttClient(parent);
     m_ParseConfigureFile = new cParseConfigureFile();
     m_connectionInfo = m_ParseConfigureFile->getConfigurationData();
@@ -129,8 +130,23 @@ void cChirpstackMqtt::on_ReceivedMessage(const QByteArray &message, const QMqttT
     QJsonDocument dataDoc = QJsonDocument::fromJson(message);
     QJsonObject dataObj = dataDoc.object();
     QByteArray rawData = QByteArray::fromBase64(dataObj.take("data").toString().toUtf8());
+    QJsonArray rxinfo = dataObj.take("rxInfo").toArray();
+    quint32 gwuid = 0;
+    bool ok = false;
+    if (rxinfo.count() > 0) {
+        QString gwUID = rxinfo.at(0).toObject().value("gatewayID").toString();
+        qDebug() << "Original Gateway UID: " << gwUID;
+        gwuid = gwUID.right(8).toUInt(&ok, 16);
+        qDebug() << "Short Version of GW UID: " << gwuid << " Converted Status :" << ok;
+        if (!gwUIDList.contains(gwuid)) {
+            qDebug() << "Found New Gateway";
+            emit sigNewGatewayFound(gwuid);
+        }
+    }
+
     qDebug() << "Data From Node: " << rawData;
-    emit sigDataToVuServer(rawData);
+
+    emit sigDataToVuServer(rawData, gwuid);
 }
 
 

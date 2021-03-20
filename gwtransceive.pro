@@ -24,8 +24,6 @@ SOURCES += \
         cJSONParser.cpp \
         cMqttUtils.cpp \
         cParseConfigureFile.cpp \
-        cSerialPortGateway.cpp \
-        cSerialWorker.cpp \
         main.cpp
 
 HEADERS += \
@@ -35,9 +33,7 @@ HEADERS += \
     cGatewayUID.h \
     cJSONParser.h \
     cMqttUtils.h \
-    cParseConfigureFile.h \
-    cSerialPortGateway.h \
-    cSerialWorker.h
+    cParseConfigureFile.h
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin

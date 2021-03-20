@@ -34,10 +34,6 @@ cConnectionInfo cParseConfigureFile::getConfigurationData()
     m_connInfo.setQoS(2);
     m_connInfo.setTopicPublicNoResponse("/Oe8lpCDMj6tKh5DrBHvRonshuDQa/GATEWAY/data");
     m_connInfo.setTopicSubscribeNoResponse("/Oe8lpCDMj6tKh5DrBHvRonshuDQa/GATEWAY/cmd");
-    m_connInfo.setSerialPortName("/dev/ttymxc1");
-    m_connInfo.setSerialPortBaudrate(static_cast<quint32>(115200));
-    m_connInfo.setPollPeriod(5);
-    m_connInfo.setGatewayUID("34f64bfffe9f234c");
 
     if (cfgFile.exists()) {
         if(cfgFile.open(QIODevice::ReadOnly)) {
@@ -55,10 +51,6 @@ cConnectionInfo cParseConfigureFile::getConfigurationData()
                 m_connInfo.setQoS(static_cast<quint8>(itemObj.take("qos").toInt()));
                 m_connInfo.setTopicPublicNoResponse(itemObj.take("pubnoreptopic").toString());
                 m_connInfo.setTopicSubscribeNoResponse(itemObj.take("subnoreptopic").toString());
-                m_connInfo.setSerialPortName(itemObj.take("serialport").toString());
-                m_connInfo.setSerialPortBaudrate(static_cast<qint32>(itemObj.take("serialportbaud").toInt()));
-                m_connInfo.setPollPeriod(itemObj.take("pollperiod").toInt());
-                m_connInfo.setGatewayUID(itemObj.take("gwid").toString());
                 tmpList.clear();
                 QJsonValue nodeidVal = itemObj.value("nodeuid");
                 QJsonArray nodeidArray = nodeidVal.toArray();
@@ -89,10 +81,6 @@ void cParseConfigureFile::setConfigurationData(cConnectionInfo conInfo)
     m_ConnfigInfoMap.insert("password", conInfo.getPassword());
     m_ConnfigInfoMap.insert("pubnoreptopic", conInfo.getTopicPublicNoResponse());
     m_ConnfigInfoMap.insert("subnoreptopic", conInfo.getTopicSubscribeNoResponse());
-    m_ConnfigInfoMap.insert("serialport", conInfo.getSerialPortName());
-    m_ConnfigInfoMap.insert("serialportbaud", conInfo.getSerialPortBaudrate());
-    m_ConnfigInfoMap.insert("pollperiod", conInfo.getPollPeriod());
-    m_ConnfigInfoMap.insert("gwid", conInfo.getGatewayUID());
     m_ConnfigInfoMap.insert("nodeuid", conInfo.getNodeIDs());
     m_ConnfigInfoMap.insert("appid", conInfo.getAppID());
     QJsonObject itemObj = QJsonObject::fromVariantMap(m_ConnfigInfoMap);

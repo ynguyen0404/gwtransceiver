@@ -37,7 +37,6 @@ public:
     void setTopicSubscribeNoResponse(QString topic);
     void setSerialPortName(QString portName);
     void setSerialPortBaudrate(qint32 baudrate);
-    void setPollPeriod(qint32 seccond);
     void setGatewayUID(QString uid);
     void setNodeID(QStringList nodeid);
     void setAppID(QStringList appID);
@@ -50,10 +49,6 @@ private:
     quint8 m_QoS = 0;
     QString m_TopicPublicNoResponse = nullptr;
     QString m_TopicSubscribeNoResponse = nullptr;
-    QString m_SerialPortName = nullptr;
-    qint32 m_SerialPortBaud = 0;
-    qint32 m_PollingPeriod = 1;
-    QString m_GawewayUID = "";
     QStringList m_NodeID;
     QStringList m_AppID;
 };

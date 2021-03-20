@@ -13,10 +13,7 @@ cConnectionInfo::cConnectionInfo(const cConnectionInfo &other)
   m_password(other.m_password),
   m_QoS(other.m_QoS),
   m_TopicPublicNoResponse(other.m_TopicPublicNoResponse),
-  m_TopicSubscribeNoResponse(other.m_TopicSubscribeNoResponse),
-  m_SerialPortName(other.m_SerialPortName),
-  m_SerialPortBaud(other.m_SerialPortBaud),
-  m_PollingPeriod(other.m_PollingPeriod)
+  m_TopicSubscribeNoResponse(other.m_TopicSubscribeNoResponse)
 {
 
 }
@@ -64,26 +61,6 @@ QString cConnectionInfo::getTopicPublicNoResponse() const
 QString cConnectionInfo::getTopicSubscribeNoResponse() const
 {
     return m_TopicSubscribeNoResponse;
-}
-
-QString cConnectionInfo::getSerialPortName() const
-{
-    return m_SerialPortName;
-}
-
-qint32 cConnectionInfo::getSerialPortBaudrate() const
-{
-    return m_SerialPortBaud;
-}
-
-qint32 cConnectionInfo::getPollPeriod() const
-{
-    return m_PollingPeriod;
-}
-
-QString cConnectionInfo::getGatewayUID() const
-{
-    return m_GawewayUID;
 }
 
 QStringList cConnectionInfo::getNodeIDs() const
@@ -134,26 +111,6 @@ void cConnectionInfo::setTopicPublicNoResponse(QString topic)
 void cConnectionInfo::setTopicSubscribeNoResponse(QString topic)
 {
     m_TopicSubscribeNoResponse = topic;
-}
-
-void cConnectionInfo::setSerialPortName(QString portName)
-{
-    m_SerialPortName = portName;
-}
-
-void cConnectionInfo::setSerialPortBaudrate(qint32 baudrate)
-{
-    m_SerialPortBaud = baudrate;
-}
-
-void cConnectionInfo::setPollPeriod(qint32 seccond)
-{
-    m_PollingPeriod = seccond;
-}
-
-void cConnectionInfo::setGatewayUID(QString uid)
-{
-    m_GawewayUID = uid;
 }
 
 void cConnectionInfo::setNodeID(QStringList nodeid)

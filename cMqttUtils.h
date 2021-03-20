@@ -6,8 +6,6 @@
 #include <QMqttClient>
 #include "cConnectionInfo.h"
 #include "cParseConfigureFile.h"
-#include "cSerialWorker.h"
-#include "cSerialPortGateway.h"
 #include <QTimer>
 class cMqttUtils : public QObject
 {
@@ -43,8 +41,9 @@ public slots:
     void on_ConnectionDisconnected();
     void on_ReceivedMessage(const QByteArray &message, const QMqttTopicName &topic);
     // Khi doc du lieu tu node sex goi slot nay de gui len server
-    void on_PublicDataToServer(QByteArray data);
-    void on_PublicKeepAlivePackage();
+    void on_PublicDataToServer(QByteArray data,  quint32 gwuid);
+    void on_PublicKeepAlivePackage(quint32 gwuid);
+    void on_NewGatewayFound(quint32 gwuid);
 
 };
 
