@@ -115,13 +115,13 @@ int main(int argc, char *argv[])
 //    m_SerialPortGw->on_SetDateTime();
 
 
-    a.connect(m_ChirpstackMqtt, &cChirpstackMqtt::sigNewGatewayFound, [m_mqttUtils] (quint32 gwuid) {
-        if (m_mqttUtils->getState() == QMqttClient::Connected) {
-            m_mqttUtils->on_NewGatewayFound(gwuid);
-        } else {
-            qDebug() << "Connection Unavailable, Unable to Subscribe";
-        }
-    });
+//    a.connect(m_ChirpstackMqtt, &cChirpstackMqtt::sigNewGatewayFound, [m_mqttUtils] (quint32 gwuid) {
+//        if (m_mqttUtils->getState() == QMqttClient::Connected) {
+//            m_mqttUtils->on_NewGatewayFound(gwuid);
+//        } else {
+//            qDebug() << "Connection Unavailable, Unable to Subscribe";
+//        }
+//    });
     a.connect(m_ChirpstackMqtt, &cChirpstackMqtt::sigDataToVuServer, [m_mqttUtils] (QByteArray dataToServer, quint32 gwuid) {
         if (m_mqttUtils->getState() == QMqttClient::Connected) {
             qDebug() << "Data Ready To Server";

@@ -26,18 +26,16 @@ QByteArray cJSONParser::rawCommandFromServer(QByteArray jsonFromServer)
         QJsonObject jsonObj = jsonDoc.object();
         quint32 gwuid = static_cast<quint32>(jsonObj.take("gwuid").toInt(0));
         qDebug() << "Gateway UID From Server: " << gwuid;
-        if (cGatewayUID::getGateWayUID() == gwuid) {
-            QJsonArray jsonArray = jsonObj.take("command").toArray();
-            while(jsonArray.count() > 0)
-            {
-                command.append(static_cast<quint8>(jsonArray.takeAt(0).toInt()));
-            }
+        QJsonArray jsonArray = jsonObj.take("command").toArray();
+        while(jsonArray.count() > 0)
+        {
+            command.append(static_cast<quint8>(jsonArray.takeAt(0).toInt()));
         }
     }
     return command;
 }
 
-QJsonDocument cJSONParser::createJSONToServer(QByteArray data, quint32 gwuid)
+QJsonDocument cJSONParser::createJSONToServer(QByteArray data, qint32 gwuid)
 {
     QJsonArray commandArray;
     QJsonObject itemObj;
@@ -67,7 +65,7 @@ QJsonDocument cJSONParser::createJSONToChirpstackServer(QByteArray data)
     return m_JsonData;
 }
 
-QJsonDocument cJSONParser::createkeepalivePackage(quint32 gwuid)
+QJsonDocument cJSONParser::createkeepalivePackage(qint32 gwuid)
 {
     QJsonObject itemObj;
     itemObj.insert("gwuid", static_cast<int>(gwuid));

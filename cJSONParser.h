@@ -16,9 +16,9 @@ public:
     explicit cJSONParser(QObject *parent = nullptr);
     ~cJSONParser();
     static QByteArray rawCommandFromServer(QByteArray jsonFromServer);
-    static QJsonDocument createJSONToServer(QByteArray data, quint32 gwuid);
+    static QJsonDocument createJSONToServer(QByteArray data, qint32 gwuid);
     static QJsonDocument createJSONToChirpstackServer(QByteArray data);
-    static QJsonDocument createkeepalivePackage(quint32 gwuid);
+    static QJsonDocument createkeepalivePackage(qint32 gwuid);
 };
 
 #endif // CJSONPARSER_H

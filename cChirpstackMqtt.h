@@ -32,12 +32,12 @@ private:
     cParseConfigureFile *m_ParseConfigureFile = nullptr;
     cConnectionInfo m_connectionInfo;
     bool m_IsConnected = false;
-    QList<quint32> gwUIDList;
+//    QList<quint32> gwUIDList;
 signals:
     void sigConnectedToServer();
     void sigDisconnectedFromServer();
-    void sigDataToVuServer(QByteArray data, quint32 gwuid);
-    void sigNewGatewayFound(quint32 gwuid);
+    void sigDataToVuServer(QByteArray data, qint32 gwuid);
+//    void sigNewGatewayFound(quint32 gwuid);
 
 public slots:
     void on_ConnectionStateChange();

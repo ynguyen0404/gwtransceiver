@@ -99,6 +99,12 @@ void cMqttUtils::on_ConnectionStateChange()
 void cMqttUtils::on_ConnectionConnected()
 {
     m_IsConnected = true;
+    auto subscription = m_client->subscribe(QMqttTopicFilter(m_connectionInfo.getTopicSubscribeNoResponse()), m_connectionInfo.getQoS());
+    qDebug() << "cMQtt: " << "Subscribe: " << m_connectionInfo.getTopicSubscribeNoResponse();
+    qDebug() << "cMQtt: " << "Subscription Response Code: " << subscription;
+    if (!subscription) {
+        qDebug("Could not subscribe. Is there a valid connection?");
+    }
     emit sigConnectedToServer();
 }
 
@@ -122,7 +128,7 @@ void cMqttUtils::on_ReceivedMessage(const QByteArray &message, const QMqttTopicN
     emit sigSendCommandToNode(serverCommand);
 }
 
-void cMqttUtils::on_PublicDataToServer(QByteArray data, quint32 gwuid)
+void cMqttUtils::on_PublicDataToServer(QByteArray data, qint32 gwuid)
 {
     QJsonDocument dataToSend = cJSONParser::createJSONToServer(data, gwuid);
     if (m_client->state() == QMqttClient::Connected) {
@@ -133,7 +139,7 @@ void cMqttUtils::on_PublicDataToServer(QByteArray data, quint32 gwuid)
     }
 }
 
-void cMqttUtils::on_PublicKeepAlivePackage(quint32 gwuid)
+void cMqttUtils::on_PublicKeepAlivePackage(qint32 gwuid)
 {
     QJsonDocument dataToSend = cJSONParser::createkeepalivePackage(gwuid);
     if (m_client->state() == QMqttClient::Connected) {
@@ -144,12 +150,12 @@ void cMqttUtils::on_PublicKeepAlivePackage(quint32 gwuid)
     }
 }
 
-void cMqttUtils::on_NewGatewayFound(quint32 gwuid)
-{
-    auto subscription = m_client->subscribe(QMqttTopicFilter(m_connectionInfo.getTopicSubscribeNoResponse().arg(gwuid)), m_connectionInfo.getQoS());
-    qDebug() << "cMQtt: " << "Subscription Response Code: " << subscription;
-    if (!subscription) {
-        qDebug("Could not subscribe. Is there a valid connection?");
-    }
-}
+//void cMqttUtils::on_NewGatewayFound(quint32 gwuid)
+//{
+//    auto subscription = m_client->subscribe(QMqttTopicFilter(m_connectionInfo.getTopicSubscribeNoResponse().arg(gwuid)), m_connectionInfo.getQoS());
+//    qDebug() << "cMQtt: " << "Subscription Response Code: " << subscription;
+//    if (!subscription) {
+//        qDebug("Could not subscribe. Is there a valid connection?");
+//    }
+//}
 
